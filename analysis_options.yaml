@@ -13,6 +13,9 @@ linter:
     - unawaited_futures
 
 analyzer:
+  exclude:
+    # A separate package with its own pubspec, analysed on its own.
+    - example/**
   errors:
     unused_import: error
     dead_code: error
