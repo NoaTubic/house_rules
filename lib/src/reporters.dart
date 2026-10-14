@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:arch_guard/src/finding.dart';
+import 'package:house_rules/src/finding.dart';
 
 const _reset = '\u001b[0m';
 const _bold = '\u001b[1m';

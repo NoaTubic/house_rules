@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:arch_guard/arch_guard.dart';
+import 'package:house_rules/house_rules.dart';
 import 'package:path/path.dart' as p;
 
 /// Builds a throwaway project on disk and runs the engine over it.
@@ -14,9 +14,9 @@ class Fixture {
   final Directory root;
 
   static Fixture create(Map<String, String> files, {required String config}) {
-    final dir = Directory.systemTemp.createTempSync('arch_guard_test_');
+    final dir = Directory.systemTemp.createTempSync('house_rules_test_');
     final fixture = Fixture._(dir);
-    fixture.write('arch_guard.yaml', config);
+    fixture.write('house_rules.yaml', config);
     files.forEach(fixture.write);
     return fixture;
   }
@@ -27,14 +27,15 @@ class Fixture {
     file.writeAsStringSync(contents);
   }
 
-  String get configPath => p.join(root.path, 'arch_guard.yaml');
+  String get configPath => p.join(root.path, 'house_rules.yaml');
 
-  ScanResult scan({List<String>? only}) =>
-      Engine(ArchConfig.load(configPath)).run(only: only);
+  Future<ScanResult> scan({List<String>? only}) =>
+      Engine(RulesConfig.load(configPath)).run(only: only);
 
   /// Findings sorted into a stable, assertable shape.
-  List<String> ruleAndLine({List<String>? only}) => [
-        for (final f in scan(only: only).findings) '${f.rule}@${f.line}',
+  Future<List<String>> ruleAndLine({List<String>? only}) async => [
+        for (final f in (await scan(only: only)).findings)
+          '${f.rule}@${f.line}',
       ];
 
   void dispose() {

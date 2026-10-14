@@ -1,26 +1,26 @@
 import 'dart:io';
 
-import 'package:arch_guard/src/baseline.dart';
-import 'package:arch_guard/src/config.dart';
-import 'package:arch_guard/src/doc_check.dart';
-import 'package:arch_guard/src/engine.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/html_report.dart';
-import 'package:arch_guard/src/init.dart';
-import 'package:arch_guard/src/markdown_report.dart';
-import 'package:arch_guard/src/reporters.dart';
+import 'package:house_rules/src/baseline.dart';
+import 'package:house_rules/src/config.dart';
+import 'package:house_rules/src/doc_check.dart';
+import 'package:house_rules/src/engine.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/html_report.dart';
+import 'package:house_rules/src/init.dart';
+import 'package:house_rules/src/markdown_report.dart';
+import 'package:house_rules/src/reporters.dart';
 import 'package:path/path.dart' as p;
 
 const _usage = '''
-arch_guard — architecture linter for project-specific rules
+house_rules — architecture linter for project-specific rules
 
-Usage: arch_guard [options] [files...]
-       arch_guard init [--force]
+Usage: house_rules [options] [files...]
+       house_rules init [--force]
 
-  init                 write a starter arch_guard.yaml for this project
+  init                 write a starter house_rules.yaml for this project
 
-  --config <path>      config file (default: arch_guard.yaml, searched upward)
-  --baseline <path>    baseline file (default: arch_guard_baseline.json)
+  --config <path>      config file (default: house_rules.yaml, searched upward)
+  --baseline <path>    baseline file (default: house_rules_baseline.json)
   --update-baseline    rewrite the baseline from the current findings
   --no-baseline        report every finding, ignoring the baseline
   --format <fmt>       human | md | json | gitlab | html  (default: human)
@@ -39,24 +39,24 @@ An internal error always exits 0: a broken linter must never block work.
 /// Exit codes: `0` clean, `1` new findings, `2` new findings in `--hook`
 /// mode. An internal error always returns `0` — a linter that breaks must
 /// not stop someone committing.
-int run(List<String> argv) {
+Future<int> run(List<String> argv) async {
   try {
-    return _run(argv);
-  } on ArchConfigException catch (e) {
-    stderr.writeln('arch_guard: $e');
+    return await _run(argv);
+  } on ConfigException catch (e) {
+    stderr.writeln('house_rules: $e');
     return 1;
   } catch (e, stack) {
     // Fail open. If the guard itself is broken, that is the guard's problem,
     // not a reason to block a commit or stall an agent.
-    stderr.writeln('arch_guard: internal error, skipping checks: $e');
-    if (Platform.environment['ARCH_GUARD_DEBUG'] == '1') {
+    stderr.writeln('house_rules: internal error, skipping checks: $e');
+    if (Platform.environment['HOUSE_RULES_DEBUG'] == '1') {
       stderr.writeln(stack);
     }
     return 0;
   }
 }
 
-int _run(List<String> argv) {
+Future<int> _run(List<String> argv) async {
   if (argv.isNotEmpty && argv.first == 'init') {
     return initConfig(
       Directory.current.path,
@@ -72,13 +72,13 @@ int _run(List<String> argv) {
 
   final configPath = args.config ?? _findConfig();
   if (configPath == null) {
-    throw ArchConfigException(
-      'no arch_guard.yaml found in this directory or any parent',
+    throw ConfigException(
+      'no house_rules.yaml found in this directory or any parent',
     );
   }
-  final config = ArchConfig.load(configPath);
+  final config = RulesConfig.load(configPath);
   final baselinePath =
-      args.baseline ?? p.join(config.root, 'arch_guard_baseline.json');
+      args.baseline ?? p.join(config.root, 'house_rules_baseline.json');
 
   if (args.checkDocs) return _checkDocs(config);
 
@@ -89,7 +89,7 @@ int _run(List<String> argv) {
             p.relative(p.absolute(raw), from: config.root),
         ];
 
-  final result = Engine(config).run(only: only);
+  final result = await Engine(config).run(only: only);
 
   final neverBaselined = {
     for (final entry in config.rules.entries)
@@ -103,7 +103,7 @@ int _run(List<String> argv) {
       neverBaselined: neverBaselined,
     );
     stdout.writeln(
-      'arch_guard: baseline written to '
+      'house_rules: baseline written to '
       '${p.relative(baselinePath, from: config.root)}',
     );
     return 0;
@@ -181,7 +181,7 @@ int _run(List<String> argv) {
   return args.hook ? 2 : 1;
 }
 
-int _checkDocs(ArchConfig config) {
+int _checkDocs(RulesConfig config) {
   const docs = ['CLAUDE.md', 'AGENTS.md', 'README.MD', 'README.md'];
   final result = checkDocs(config, docs);
   for (final marker in result.danglingMarkers) {
@@ -192,22 +192,22 @@ int _checkDocs(ArchConfig config) {
   }
   for (final rule in result.undocumented) {
     stderr.writeln(
-      'arch_guard.yaml: rule "$rule" blocks builds but is not documented '
+      'house_rules.yaml: rule "$rule" blocks builds but is not documented '
       'with an enforced marker',
     );
   }
   if (result.isClean) {
-    stdout.writeln('arch_guard: docs and rules are in sync');
+    stdout.writeln('house_rules: docs and rules are in sync');
     return 0;
   }
   return 1;
 }
 
-/// Walks up from the working directory looking for `arch_guard.yaml`.
+/// Walks up from the working directory looking for `house_rules.yaml`.
 String? _findConfig() {
   var dir = Directory.current.absolute.path;
   while (true) {
-    final candidate = p.join(dir, 'arch_guard.yaml');
+    final candidate = p.join(dir, 'house_rules.yaml');
     if (File(candidate).existsSync()) return candidate;
     final parent = p.dirname(dir);
     if (parent == dir) return null;
@@ -259,7 +259,7 @@ class _Args {
       final arg = argv[i];
       String next() {
         if (i + 1 >= argv.length) {
-          throw ArchConfigException('$arg expects a value');
+          throw ConfigException('$arg expects a value');
         }
         return argv[++i];
       }
@@ -289,7 +289,7 @@ class _Args {
           help = true;
         default:
           if (arg.startsWith('-')) {
-            throw ArchConfigException('unknown option: $arg');
+            throw ConfigException('unknown option: $arg');
           }
           paths.add(arg);
       }
@@ -297,7 +297,7 @@ class _Args {
 
     const formats = {'human', 'md', 'json', 'gitlab', 'html'};
     if (!formats.contains(format)) {
-      throw ArchConfigException(
+      throw ConfigException(
         'unknown --format "$format" (expected: ${formats.join(', ')})',
       );
     }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:arch_guard/src/config.dart';
+import 'package:house_rules/src/config.dart';
 import 'package:path/path.dart' as p;
 
 /// Verifies that the prose guidelines and the rule config have not drifted.
@@ -22,7 +22,7 @@ class DocCheckResult {
 
 final _markerPattern = RegExp(r'⚡\s*enforced:\s*(.+)$');
 
-DocCheckResult checkDocs(ArchConfig config, List<String> docPaths) {
+DocCheckResult checkDocs(RulesConfig config, List<String> docPaths) {
   final declared = <String, int>{};
   final dangling = <({String rule, int line})>[];
 

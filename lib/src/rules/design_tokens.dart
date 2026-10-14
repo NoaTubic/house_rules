@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/rules/construction.dart';
-import 'package:arch_guard/src/rules/rule.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/rules/construction.dart';
+import 'package:house_rules/src/rules/rule.dart';
 
 Set<String> _set(Object? raw, Set<String> fallback) =>
     raw is List ? raw.map((e) => e.toString()).toSet() : fallback;
@@ -20,7 +20,7 @@ Set<String> _set(Object? raw, Set<String> fallback) =>
 ///   allowed: [transparent, white]
 ///   suggest: ColorTokens.get('<token>')
 /// ```
-class AvoidPaletteColorsRule extends ArchRule {
+class AvoidPaletteColorsRule extends Rule {
   AvoidPaletteColorsRule(super.config) {
     palette = (config.options['palette'] ?? 'Colors').toString();
     allowed = _set(config.options['allowed'], const {'transparent'});
@@ -81,7 +81,7 @@ class _PaletteVisitor extends RecursiveAstVisitor<void> {
 ///   constructors: ['', fromARGB, fromRGBO]
 ///   suggest: ColorTokens.get('<token>')
 /// ```
-class AvoidRawColorsRule extends ArchRule {
+class AvoidRawColorsRule extends Rule {
   AvoidRawColorsRule(super.config) {
     typeName = (config.options['type'] ?? 'Color').toString();
     constructors = _set(
@@ -149,7 +149,7 @@ class _RawColorVisitor extends ConstructionVisitor {
 ///   flag_properties: [fontSize, fontWeight, fontFamily]
 ///   suggest: context.appTextStyles.<style>
 /// ```
-class AvoidInlineTextStylesRule extends ArchRule {
+class AvoidInlineTextStylesRule extends Rule {
   AvoidInlineTextStylesRule(super.config) {
     typeName = (config.options['type'] ?? 'TextStyle').toString();
     flagProperties = _set(
@@ -217,7 +217,7 @@ class _InlineStyleVisitor extends ConstructionVisitor {
 ///   allowed_values: [0, 1]
 ///   suggest: AppSizes.<name>
 /// ```
-class MagicSpacingRule extends ArchRule {
+class MagicSpacingRule extends Rule {
   MagicSpacingRule(super.config) {
     constructors = _set(
       config.options['constructors'],

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:arch_guard/src/finding.dart';
+import 'package:house_rules/src/finding.dart';
 
 /// A ratchet baseline of violations that already existed when the guard was
 /// introduced.
@@ -26,7 +26,7 @@ class Baseline {
     if (!file.existsSync()) return Baseline.empty();
     final doc = jsonDecode(file.readAsStringSync());
     if (doc is! Map || doc['entries'] is! List) {
-      throw FormatException('$path: not a valid arch_guard baseline');
+      throw FormatException('$path: not a valid house_rules baseline');
     }
     final counts = <String, int>{};
     for (final raw in doc['entries'] as List) {

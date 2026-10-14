@@ -1,5 +1,5 @@
 // Stand-ins for the Flutter widget library, so this example is pure Dart and
-// runs without the Flutter SDK. arch_guard is parse-only, so the rules fire
+// runs without the Flutter SDK. house_rules is parse-only, so the rules fire
 // on the shape of the code regardless of where these types come from.
 class Color {
   const Color(this.value);

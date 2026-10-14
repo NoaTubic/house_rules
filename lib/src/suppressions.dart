@@ -1,11 +1,11 @@
-import 'package:arch_guard/src/finding.dart';
+import 'package:house_rules/src/finding.dart';
 
-/// Matches `// arch_guard: ignore <rule> — <reason>`.
+/// Matches `// house_rules: ignore <rule> — <reason>`.
 ///
 /// The reason is mandatory: an unjustified ignore is itself reported, so
 /// exemptions stay auditable.
 final _ignorePattern = RegExp(
-  r'//\s*arch_guard:\s*ignore\s+([a-z0-9_,\s]+?)\s*(?:[—\-]{1,2}\s*(.*))?$',
+  r'//\s*house_rules:\s*ignore\s+([a-z0-9_,\s]+?)\s*(?:[—\-]{1,2}\s*(.*))?$',
 );
 
 class Suppression {

@@ -28,7 +28,7 @@ rules:
     source: lib/tokens.dart
 ''';
 
-    test('accepts defined tokens and reports the rest', () {
+    test('accepts defined tokens and reports the rest', () async {
       fixture = Fixture.create(
         {
           'lib/tokens.dart': tokens,
@@ -39,10 +39,10 @@ final b = Tokens.get('Text/bodyy');
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['known_design_tokens@2']);
+      expect(await fixture.ruleAndLine(), ['known_design_tokens@2']);
     });
 
-    test('collects definitions from every map in the source', () {
+    test('collects definitions from every map in the source', () async {
       fixture = Fixture.create(
         {
           'lib/tokens.dart': tokens,
@@ -50,10 +50,10 @@ final b = Tokens.get('Text/bodyy');
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('ranks suggestions by shared path segments', () {
+    test('ranks suggestions by shared path segments', () async {
       fixture = Fixture.create(
         {
           'lib/tokens.dart': tokens,
@@ -61,11 +61,11 @@ final b = Tokens.get('Text/bodyy');
         },
         config: config,
       );
-      final finding = fixture.scan().findings.single;
+      final finding = (await fixture.scan()).findings.single;
       expect(finding.candidates.first, 'Text/body');
     });
 
-    test('skips a non-literal argument rather than guessing', () {
+    test('skips a non-literal argument rather than guessing', () async {
       fixture = Fixture.create(
         {
           'lib/tokens.dart': tokens,
@@ -73,17 +73,17 @@ final b = Tokens.get('Text/bodyy');
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('never reports the token source against itself', () {
+    test('never reports the token source against itself', () async {
       fixture = Fixture.create(
         {
           'lib/tokens.dart': tokens,
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
 
@@ -105,7 +105,7 @@ rules:
         message: domain must not depend on data or Flutter
 ''';
 
-    test('reports a denied package import by its repo path', () {
+    test('reports a denied package import by its repo path', () async {
       fixture = Fixture.create(
         {
           'lib/features/cart/domain/e.dart':
@@ -113,10 +113,10 @@ rules:
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['layer_boundaries@1']);
+      expect(await fixture.ruleAndLine(), ['layer_boundaries@1']);
     });
 
-    test('reports a denied third-party package by its URI', () {
+    test('reports a denied third-party package by its URI', () async {
       fixture = Fixture.create(
         {
           'lib/features/cart/domain/e.dart':
@@ -124,20 +124,20 @@ rules:
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['layer_boundaries@1']);
+      expect(await fixture.ruleAndLine(), ['layer_boundaries@1']);
     });
 
-    test('resolves relative imports before matching', () {
+    test('resolves relative imports before matching', () async {
       fixture = Fixture.create(
         {
           'lib/features/cart/domain/e.dart': "import '../data/dto.dart';",
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['layer_boundaries@1']);
+      expect(await fixture.ruleAndLine(), ['layer_boundaries@1']);
     });
 
-    test('allows imports that match no deny pattern', () {
+    test('allows imports that match no deny pattern', () async {
       fixture = Fixture.create(
         {
           'lib/features/cart/domain/e.dart': '''
@@ -147,10 +147,10 @@ import 'package:demo/core/domain/x.dart';
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('honours a layer exclude', () {
+    test('honours a layer exclude', () async {
       fixture = Fixture.create(
         {
           'lib/features/router/domain/r.dart':
@@ -158,10 +158,10 @@ import 'package:demo/core/domain/x.dart';
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('ignores files outside the layer', () {
+    test('ignores files outside the layer', () async {
       fixture = Fixture.create(
         {
           'lib/features/cart/presentation/p.dart':
@@ -169,7 +169,7 @@ import 'package:demo/core/domain/x.dart';
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
 
@@ -184,7 +184,7 @@ rules:
     handlers: [onTap, onPressed]
 ''';
 
-    test('reports watch inside a handler', () {
+    test('reports watch inside a handler', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -195,10 +195,10 @@ Widget build(BuildContext context, WidgetRef ref) {
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['no_watch_in_callback@2']);
+      expect(await fixture.ruleAndLine(), ['no_watch_in_callback@2']);
     });
 
-    test('reports watch inside a listen callback', () {
+    test('reports watch inside a listen callback', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -212,10 +212,10 @@ Widget build(BuildContext context, WidgetRef ref) {
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['no_watch_in_callback@3']);
+      expect(await fixture.ruleAndLine(), ['no_watch_in_callback@3']);
     });
 
-    test('allows watch in reactive position', () {
+    test('allows watch in reactive position', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -227,10 +227,10 @@ Widget build(BuildContext context, WidgetRef ref) {
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('allows read inside a handler', () {
+    test('allows read inside a handler', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -241,10 +241,10 @@ Widget build(BuildContext context, WidgetRef ref) {
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
 
-    test('ignores a watch on another receiver', () {
+    test('ignores a watch on another receiver', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -255,12 +255,12 @@ Widget build(BuildContext context, WidgetRef ref) {
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
 
   group('widget architecture', () {
-    test('reports widget-returning helpers but not build', () {
+    test('reports widget-returning helpers but not build', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -274,13 +274,13 @@ class A {
         },
         config: configFor('no_widget_returning_function'),
       );
-      expect(fixture.ruleAndLine(), [
+      expect(await fixture.ruleAndLine(), [
         'no_widget_returning_function@3',
         'no_widget_returning_function@4',
       ]);
     });
 
-    test('reports functions declared inside build', () {
+    test('reports functions declared inside build', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -294,10 +294,10 @@ class A {
         },
         config: configFor('no_method_in_build'),
       );
-      expect(fixture.ruleAndLine(), ['no_method_in_build@3']);
+      expect(await fixture.ruleAndLine(), ['no_method_in_build@3']);
     });
 
-    test('a closure assigned to a variable is not a declaration', () {
+    test('a closure assigned to a variable is not a declaration', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
@@ -311,7 +311,7 @@ class A {
         },
         config: configFor('no_method_in_build'),
       );
-      expect(fixture.ruleAndLine(), isEmpty);
+      expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
 }

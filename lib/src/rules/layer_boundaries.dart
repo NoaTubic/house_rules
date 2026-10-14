@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:arch_guard/src/config.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/rules/rule.dart';
 import 'package:glob/glob.dart';
+import 'package:house_rules/src/config.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/rules/rule.dart';
 import 'package:path/path.dart' as p;
 
 /// Enforces which parts of the codebase may depend on which others.
@@ -22,18 +22,18 @@ import 'package:path/path.dart' as p;
 ///       deny: ['lib/features/*/data/**', 'package:flutter/material.dart']
 ///       message: domain must not depend on data or Flutter
 /// ```
-class LayerBoundariesRule extends ArchRule {
+class LayerBoundariesRule extends Rule {
   LayerBoundariesRule(super.config) {
     packageName = config.options['package'] as String?;
     final raw = config.options['layers'];
     if (raw is! List || raw.isEmpty) {
-      throw ArchConfigException(
+      throw ConfigException(
         'rule `${config.name}`: `layers:` must be a non-empty list',
       );
     }
     for (final entry in raw) {
       if (entry is! Map) {
-        throw ArchConfigException(
+        throw ConfigException(
           'rule `${config.name}`: each layer must be a map',
         );
       }
@@ -111,7 +111,7 @@ class _Layer {
       final value = map[key];
       if (value is String) return [value];
       if (value is List) return value.map((e) => e.toString()).toList();
-      throw ArchConfigException(
+      throw ConfigException(
         'rule `$ruleName`: layer `$key:` must be a string or list',
       );
     }

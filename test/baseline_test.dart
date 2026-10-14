@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:arch_guard/arch_guard.dart';
+import 'package:house_rules/house_rules.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
@@ -26,7 +26,7 @@ void main() {
   late String path;
 
   setUp(() {
-    dir = Directory.systemTemp.createTempSync('arch_guard_baseline_');
+    dir = Directory.systemTemp.createTempSync('house_rules_baseline_');
     path = p.join(dir.path, 'baseline.json');
   });
   tearDown(() => dir.deleteSync(recursive: true));

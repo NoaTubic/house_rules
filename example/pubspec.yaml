@@ -1,5 +1,5 @@
 name: example_app
-description: A tiny project where every file breaks exactly one arch_guard rule.
+description: A tiny project where every file breaks exactly one house_rules rule.
 publish_to: none
 version: 1.0.0
 

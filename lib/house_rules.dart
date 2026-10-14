@@ -14,9 +14,9 @@
 /// Most users want the command line interface:
 ///
 /// ```sh
-/// dart pub global activate arch_guard
-/// arch_guard init     # write a starter arch_guard.yaml
-/// arch_guard          # check
+/// dart pub global activate house_rules
+/// house_rules init     # write a starter house_rules.yaml
+/// house_rules          # check
 /// ```
 ///
 /// This library is the programmatic entry point, for embedding the checker
@@ -25,7 +25,7 @@ library;
 
 export 'src/baseline.dart' show Baseline;
 export 'src/cli.dart' show run;
-export 'src/config.dart' show ArchConfig, ArchConfigException, RuleConfig;
+export 'src/config.dart' show RulesConfig, ConfigException, RuleConfig;
 export 'src/engine.dart' show Engine, RuleFactory, ScanResult, ruleRegistry;
 export 'src/finding.dart' show Finding, Severity;
 export 'src/html_report.dart' show renderHtml;
@@ -39,5 +39,5 @@ export 'src/rules/construction.dart'
         ConstructionVisitor,
         matchConstruction,
         matchConstructionType;
-export 'src/rules/rule.dart' show ArchRule, FileContext, ProjectContext;
+export 'src/rules/rule.dart' show Rule, FileContext, ProjectContext;
 export 'src/suppressions.dart' show Suppression, SuppressionIndex;

@@ -1,4 +1,4 @@
-import 'package:arch_guard/src/finding.dart';
+import 'package:house_rules/src/finding.dart';
 
 /// Renders a Markdown report meant to be opened in an editor.
 ///
@@ -29,7 +29,7 @@ String renderMarkdown(
   ];
 
   final out = StringBuffer()
-    ..writeln('# arch_guard — $projectName')
+    ..writeln('# house_rules — $projectName')
     ..writeln()
     ..writeln(
       blocking.isEmpty
@@ -45,8 +45,8 @@ String renderMarkdown(
     )
     ..writeln()
     ..writeln(
-      'Rules are configured in `arch_guard.yaml`. Findings recorded in '
-      '`arch_guard_baseline.json` are listed as baselined and do not fail a '
+      'Rules are configured in `house_rules.yaml`. Findings recorded in '
+      '`house_rules_baseline.json` are listed as baselined and do not fail a '
       'build.',
     )
     ..writeln();
@@ -84,7 +84,7 @@ String renderMarkdown(
           'and are not listed here. To see them:')
       ..writeln()
       ..writeln('```bash')
-      ..writeln('arch_guard --no-baseline --format md --output all.md')
+      ..writeln('house_rules --no-baseline --format md --output all.md')
       ..writeln('```')
       ..writeln();
   }

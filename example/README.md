@@ -1,10 +1,10 @@
-# arch_guard example
+# house_rules example
 
 A tiny pure-Dart project where each file breaks one rule on purpose.
 
 ```sh
 cd example
-dart run ../bin/arch_guard.dart
+dart run ../bin/house_rules.dart
 ```
 
 | File | Rule | Why |
@@ -18,7 +18,7 @@ dart run ../bin/arch_guard.dart
 falls back to magenta instead of failing, so a typo reaches users.
 
 `lib/ui/ui.dart` holds stand-ins for the Flutter widget library, so the
-example runs without the Flutter SDK. arch_guard is parse-only, so the rules
+example runs without the Flutter SDK. house_rules is parse-only, so the rules
 fire on the shape of the code regardless of where the types come from — in a
 real project you would deny `package:flutter/material.dart` where this
 config denies `lib/ui/**`.
@@ -26,6 +26,6 @@ config denies `lib/ui/**`.
 Other outputs:
 
 ```sh
-dart run ../bin/arch_guard.dart --format md --output ARCH_GUARD.md
-dart run ../bin/arch_guard.dart --format html --output report.html
+dart run ../bin/house_rules.dart --format md --output HOUSE_RULES.md
+dart run ../bin/house_rules.dart --format html --output report.html
 ```

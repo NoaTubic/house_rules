@@ -1,4 +1,4 @@
-import 'package:arch_guard/arch_guard.dart';
+import 'package:house_rules/house_rules.dart';
 import 'package:test/test.dart';
 
 import 'support.dart';
@@ -23,7 +23,7 @@ rules:
 ''';
 
   group('file selection', () {
-    test('honours include, exclude and the generated-file defaults', () {
+    test('honours include, exclude and the generated-file defaults', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': 'final a = Colors.black;',
@@ -36,22 +36,22 @@ rules:
         config: config,
       );
 
-      final result = fixture.scan();
+      final result = await fixture.scan();
       expect(result.findings.map((f) => f.file), ['lib/a.dart']);
       expect(result.filesScanned, 1);
     });
 
-    test('a per-rule exclude skips the rule, not the file', () {
+    test('a per-rule exclude skips the rule, not the file', () async {
       fixture = Fixture.create(
         {
           'lib/theme/palette.dart': 'final a = Colors.black;',
         },
         config: config,
       );
-      expect(fixture.scan().findings, isEmpty);
+      expect((await fixture.scan()).findings, isEmpty);
     });
 
-    test('scanning specific paths still respects exclusions', () {
+    test('scanning specific paths still respects exclusions', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': 'final a = Colors.black;',
@@ -59,11 +59,11 @@ rules:
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(only: ['lib/c.g.dart']), isEmpty);
-      expect(fixture.ruleAndLine(only: ['lib/a.dart']), hasLength(1));
+      expect(await fixture.ruleAndLine(only: ['lib/c.g.dart']), isEmpty);
+      expect(await fixture.ruleAndLine(only: ['lib/a.dart']), hasLength(1));
     });
 
-    test('findings are ordered by file, then line, then column', () {
+    test('findings are ordered by file, then line, then column', () async {
       fixture = Fixture.create(
         {
           'lib/b.dart': 'final a = Colors.black;',
@@ -75,74 +75,74 @@ final b = Colors.green;
         config: config,
       );
       expect(
-        fixture.scan().findings.map((f) => '${f.file}:${f.line}'),
+        (await fixture.scan()).findings.map((f) => '${f.file}:${f.line}'),
         ['lib/a.dart:1', 'lib/a.dart:2', 'lib/b.dart:1'],
       );
     });
   });
 
   group('suppressions', () {
-    test('a justified ignore on the line above suppresses', () {
+    test('a justified ignore on the line above suppresses', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
-// arch_guard: ignore avoid_palette_colors — vendor SDK needs it
+// house_rules: ignore avoid_palette_colors — vendor SDK needs it
 final a = Colors.black;
 ''',
         },
         config: config,
       );
-      final result = fixture.scan();
+      final result = await fixture.scan();
       expect(result.findings, isEmpty);
       expect(result.suppressed, 1);
     });
 
-    test('an ignore without a reason is itself reported', () {
+    test('an ignore without a reason is itself reported', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
-// arch_guard: ignore avoid_palette_colors
+// house_rules: ignore avoid_palette_colors
 final a = Colors.black;
 ''',
         },
         config: config,
       );
       expect(
-        fixture.scan().findings.map((f) => f.rule),
+        (await fixture.scan()).findings.map((f) => f.rule),
         containsAll(['unjustified_ignore', 'avoid_palette_colors']),
       );
     });
 
-    test('does not reach past the line below it', () {
+    test('does not reach past the line below it', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
-// arch_guard: ignore avoid_palette_colors — only the next line
+// house_rules: ignore avoid_palette_colors — only the next line
 final a = Colors.black;
 final b = Colors.red;
 ''',
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['avoid_palette_colors@3']);
+      expect(await fixture.ruleAndLine(), ['avoid_palette_colors@3']);
     });
 
-    test('only suppresses the rule it names', () {
+    test('only suppresses the rule it names', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': '''
-// arch_guard: ignore some_other_rule — unrelated
+// house_rules: ignore some_other_rule — unrelated
 final a = Colors.black;
 ''',
         },
         config: config,
       );
-      expect(fixture.ruleAndLine(), ['avoid_palette_colors@2']);
+      expect(await fixture.ruleAndLine(), ['avoid_palette_colors@2']);
     });
   });
 
   group('configuration errors', () {
-    test('an unknown rule name is reported, not ignored', () {
+    test('an unknown rule name is reported, not ignored', () async {
       fixture = Fixture.create(
         {'lib/a.dart': ''},
         config: '''
@@ -153,9 +153,9 @@ rules:
 ''',
       );
       expect(
-        () => fixture.scan(),
+        () async => fixture.scan(),
         throwsA(
-          isA<ArchConfigException>().having(
+          isA<ConfigException>().having(
             (e) => e.message,
             'message',
             contains('no_such_rule'),
@@ -164,7 +164,7 @@ rules:
       );
     });
 
-    test('a rule missing required options is reported', () {
+    test('a rule missing required options is reported', () async {
       fixture = Fixture.create(
         {'lib/a.dart': ''},
         config: '''
@@ -174,15 +174,15 @@ rules:
     severity: error
 ''',
       );
-      expect(() => fixture.scan(), throwsA(isA<ArchConfigException>()));
+      expect(() async => fixture.scan(), throwsA(isA<ConfigException>()));
     });
 
-    test('an empty rules block is rejected', () {
+    test('an empty rules block is rejected', () async {
       fixture = Fixture.create({'lib/a.dart': ''}, config: 'version: 1\n');
-      expect(() => fixture.scan(), throwsA(isA<ArchConfigException>()));
+      expect(() async => fixture.scan(), throwsA(isA<ConfigException>()));
     });
 
-    test('enabled: false switches a rule off', () {
+    test('enabled: false switches a rule off', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': 'final a = Colors.black;',
@@ -199,12 +199,12 @@ rules:
     severity: error
 ''',
       );
-      expect(fixture.scan().findings, isEmpty);
+      expect((await fixture.scan()).findings, isEmpty);
     });
   });
 
   group('severity', () {
-    test('is read from the config', () {
+    test('is read from the config', () async {
       fixture = Fixture.create(
         {
           'lib/a.dart': 'final a = Colors.black;',
@@ -219,7 +219,7 @@ rules:
     palette: Colors
 ''',
       );
-      expect(fixture.scan().findings.single.severity, Severity.warning);
+      expect((await fixture.scan()).findings.single.severity, Severity.warning);
     });
   });
 }

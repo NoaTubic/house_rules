@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/source/line_info.dart';
 
-import 'package:arch_guard/src/config.dart';
-import 'package:arch_guard/src/finding.dart';
+import 'package:house_rules/src/config.dart';
+import 'package:house_rules/src/finding.dart';
 
 /// One analysed source file.
 class FileContext {
@@ -59,8 +59,8 @@ class ProjectContext {
 ///
 /// Rules are parse-only: they see the AST and the raw source, never resolved
 /// types. That keeps a full-repo scan in the hundreds of milliseconds.
-abstract class ArchRule {
-  ArchRule(this.config);
+abstract class Rule {
+  Rule(this.config);
 
   final RuleConfig config;
 
@@ -75,4 +75,19 @@ abstract class ArchRule {
 
   /// Optional project-level findings, emitted after every file is visited.
   void finish(List<Finding> out) {}
+
+  /// What this rule learned while visiting its share of the files.
+  ///
+  /// When a scan is split across isolates each shard gets its own rule
+  /// instances, so a rule that accumulates across files — which tokens were
+  /// referenced, say — must hand that back to be merged before [finish]
+  /// runs. The value is copied between isolates, so it must be plain data:
+  /// primitives and collections, no closures.
+  ///
+  /// Rules that look at one file at a time need none of this.
+  Object? captureShardState() => null;
+
+  /// Folds state returned by [captureShardState] on another shard into this
+  /// instance. Called once per shard, before [finish].
+  void mergeShardState(Object? state) {}
 }

@@ -4,19 +4,19 @@
 
 First release.
 
-- Parse-only AST engine; a ~3,000-file project is checked in under a second.
+- Write project-specific lint rules in YAML; no `custom_lint` plugin, no
+  Dart code per rule, no `build_runner`.
 - Ten rules: `known_design_tokens`, `layer_boundaries`,
   `no_watch_in_callback`, `no_widget_returning_function`,
   `no_method_in_build`, `avoid_palette_colors`, `avoid_raw_colors`,
   `avoid_inline_text_styles`, `magic_spacing`, `unjustified_ignore`.
-- Rules are generic and parameterised; everything project-specific lives in
-  `arch_guard.yaml`.
+- Parse-only AST analysis, sharded across isolates: 2,937 files in 0.285 s.
 - Ratchet baseline keyed by a hash of the offending expression rather than
   line numbers, so it survives formatting and unrelated edits.
-- Per-rule `exclude` globs and `baseline: false` for zero-tolerance rules.
+- Per-rule `exclude` globs, and `baseline: false` for zero-tolerance rules.
 - Five output formats: terminal, Markdown, JSON, GitLab Code Quality, and a
   self-contained HTML report.
-- `arch_guard init` writes a starter config for the current project.
-- `--check-docs` verifies that guideline files and the rule config agree.
+- `house_rules init` writes a starter config for the current project.
+- `--check-docs` verifies that prose guidelines and the rule config agree.
 - Suppression comments require a stated reason; an unjustified one is itself
   reported.

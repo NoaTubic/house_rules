@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-/// Writes a starter `arch_guard.yaml` for the project in [directory].
+/// Writes a starter `house_rules.yaml` for the project in [directory].
 ///
 /// Rules that need no project knowledge are enabled outright. Rules that
 /// depend on names only this project knows — which palette stands in for
@@ -10,10 +10,10 @@ import 'package:path/path.dart' as p;
 /// out with a note, because a rule configured with a guess is worse than no
 /// rule: it either fires on everything or silently never fires.
 int initConfig(String directory, {bool force = false}) {
-  final target = File(p.join(directory, 'arch_guard.yaml'));
+  final target = File(p.join(directory, 'house_rules.yaml'));
   if (target.existsSync() && !force) {
     stderr.writeln(
-      'arch_guard: ${p.relative(target.path)} already exists. '
+      'house_rules: ${p.relative(target.path)} already exists. '
       'Pass --force to overwrite it.',
     );
     return 1;
@@ -23,13 +23,13 @@ int initConfig(String directory, {bool force = false}) {
   target.writeAsStringSync(_template(packageName));
 
   stdout
-    ..writeln('arch_guard: wrote ${p.relative(target.path)}')
+    ..writeln('house_rules: wrote ${p.relative(target.path)}')
     ..writeln()
     ..writeln('Next:')
-    ..writeln('  1. arch_guard                    see what it finds')
-    ..writeln('  2. arch_guard --update-baseline  accept what is already '
+    ..writeln('  1. house_rules                    see what it finds')
+    ..writeln('  2. house_rules --update-baseline  accept what is already '
         'there')
-    ..writeln('  3. arch_guard                    now only new findings '
+    ..writeln('  3. house_rules                    now only new findings '
         'fail');
   if (packageName == null) {
     stdout
@@ -58,11 +58,11 @@ String? _packageName(String directory) {
 String _template(String? packageName) {
   final package = packageName ?? '<your package name>';
   return '''
-# arch_guard — architecture rules for this project.
+# house_rules — architecture rules for this project.
 #
-#   arch_guard                     check
-#   arch_guard --update-baseline   accept the current findings
-#   arch_guard --format md --output ARCH_GUARD.md
+#   house_rules                     check
+#   house_rules --update-baseline   accept the current findings
+#   house_rules --format md --output HOUSE_RULES.md
 #
 # Only `error` and `warning` findings fail a build; `info` never does.
 # Every rule also accepts:

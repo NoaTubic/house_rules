@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:arch_guard/arch_guard.dart';
+import 'package:house_rules/house_rules.dart';
 import 'package:test/test.dart';
 
 Finding sample({

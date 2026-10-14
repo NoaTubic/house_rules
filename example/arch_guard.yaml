@@ -1,6 +1,6 @@
 # A minimal, runnable configuration.
 #
-#   cd example && dart run ../bin/arch_guard.dart
+#   cd example && dart run ../bin/house_rules.dart
 #
 # Each file under example/lib breaks one rule on purpose, so the output shows
 # what every rule reports and what its suggestions look like.

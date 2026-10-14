@@ -2,9 +2,9 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
-import 'package:arch_guard/src/config.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/rules/rule.dart';
+import 'package:house_rules/src/config.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/rules/rule.dart';
 
 /// Verifies that every design token looked up through a string accessor is
 /// actually defined.
@@ -23,12 +23,12 @@ import 'package:arch_guard/src/rules/rule.dart';
 ///   fallback_note: "renders Colors.pink at runtime"
 ///   report_unused: true
 /// ```
-class KnownDesignTokensRule extends ArchRule {
+class KnownDesignTokensRule extends Rule {
   KnownDesignTokensRule(super.config) {
     final accessor = config.requireString('accessor');
     final parts = accessor.split('.');
     if (parts.length != 2) {
-      throw ArchConfigException(
+      throw ConfigException(
         'rule `${config.name}`: `accessor:` must be "<Target>.<method>", '
         'got "$accessor"',
       );
@@ -56,13 +56,13 @@ class KnownDesignTokensRule extends ArchRule {
   void prepare(ProjectContext project) {
     final source = project.readFile(sourcePath);
     if (source == null) {
-      throw ArchConfigException(
+      throw ConfigException(
         'rule `${config.name}`: `source:` file not found: $sourcePath',
       );
     }
     defined.addAll(_TokenDefinitionCollector.collect(source));
     if (defined.isEmpty) {
-      throw ArchConfigException(
+      throw ConfigException(
         'rule `${config.name}`: no token keys found in $sourcePath',
       );
     }
@@ -91,6 +91,17 @@ class KnownDesignTokensRule extends ArchRule {
           candidates: _nearest(site.token, context: site.context),
         ),
       );
+    }
+  }
+
+  @override
+  Object? captureShardState() => Map<String, String>.from(used);
+
+  @override
+  void mergeShardState(Object? state) {
+    if (state is! Map) return;
+    for (final entry in state.entries) {
+      used.putIfAbsent(entry.key as String, () => entry.value as String);
     }
   }
 

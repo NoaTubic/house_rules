@@ -1,17 +1,17 @@
-name: arch_guard
+name: house_rules
 description: >-
-  A fast, config-driven architecture linter for Dart and Flutter. Enforces
-  layering, design-token and state-management rules the analyzer cannot
-  express, with a ratchet baseline for existing codebases.
+  Write project-specific lint rules in YAML instead of building a custom_lint
+  plugin. Design tokens, widget architecture, layering and state-management
+  rules, with a ratchet baseline for existing codebases.
 version: 0.1.0
-repository: https://github.com/NoaTubic/arch_guard
-issue_tracker: https://github.com/NoaTubic/arch_guard/issues
+repository: https://github.com/NoaTubic/house_rules
+issue_tracker: https://github.com/NoaTubic/house_rules/issues
 
 topics:
   - lint
   - linter
-  - architecture
   - static-analysis
+  - code-quality
   - flutter
 
 environment:
@@ -28,4 +28,4 @@ dev_dependencies:
   test: ^1.25.0
 
 executables:
-  arch_guard:
+  house_rules:

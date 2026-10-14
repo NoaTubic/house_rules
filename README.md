@@ -1,52 +1,62 @@
-# arch_guard
+# house_rules
 
-A fast, config-driven architecture linter for Dart and Flutter.
+**Write your project's lint rules in YAML.**
 
-The Dart analyzer enforces language-level lints. It cannot express the rules
-that actually keep a codebase coherent — *"`domain/` must never import
-`presentation/`"*, *"every design-token lookup must name a token that
-exists"*, *"never call `ref.watch` from inside a callback"*. Those rules
-usually live in a style guide that nothing checks, and a style guide that
-nothing checks is a style guide that drifts.
+Every codebase has house rules. *Use the design tokens, not `Colors.grey`.
+Don't let `domain/` import `presentation/`. Never call `ref.watch` from a
+button handler.* They end up in a style guide, a wiki page, a `CONTRIBUTING.md`
+— and nothing checks any of them, so they drift.
 
-`arch_guard` checks them, on every save and every commit, not just in review.
+The Dart analyzer can't express rules like these. The usual answer is to
+write a [`custom_lint`](https://pub.dev/packages/custom_lint) plugin, which
+means a second package, Dart code per rule, and a plugin that has to be kept
+in step with the analyzer. For a handful of project conventions, that is a lot
+of ceremony.
 
-## Why parse-only
+`house_rules` gives you the same enforcement as four lines of YAML:
 
-Rules see the AST and the raw source, never resolved types. That is a real
-limitation — the checker cannot know that `Foo` is a class — but it buys two
-orders of magnitude of speed:
+```yaml
+rules:
+  avoid_palette_colors:
+    severity: error
+    exclude: [lib/theme/**]
+    palette: Colors
+    allowed: [transparent, white]
+```
 
-| Invocation | One file | 2,930 files |
-| --- | --: | --: |
-| `dart run` | 3.30 s | — |
-| kernel snapshot | 0.17 s | — |
-| compiled executable | **0.02 s** | **0.45 s** |
+```
+lib/features/cart/widget.dart
+  88:14  ERROR  avoid_palette_colors
+         `Colors.grey` bypasses the design tokens
+         A literal palette colour will not follow a theme override,
+         a white-label brand, or dark mode.
+         did you mean:
+           'Text/body'
+           'Text/item-description'
+```
 
-Half a second for a large app is what makes this usable as an editor hook, a
-pre-commit hook and a CI gate at the same time, instead of only the last one.
+No plugin, no `build_runner`, no Dart code. One binary and one YAML file.
 
 ## Install
 
 ```sh
-dart pub global activate arch_guard
+dart pub global activate house_rules
 ```
 
-For a reproducible setup, pin it as a dev dependency and run it through
-`dart run` instead:
+Or pin it, for a reproducible setup:
 
 ```yaml
 dev_dependencies:
-  arch_guard: ^0.1.0
+  house_rules: ^0.1.0
 ```
 
 ## Start
 
 ```sh
-arch_guard init              # write a starter arch_guard.yaml
-arch_guard                   # see what it finds
-arch_guard --update-baseline # accept what is already there
-arch_guard                   # from now on, only new findings fail
+house_rules init              # write a starter house_rules.yaml
+house_rules                   # see what it finds
+house_rules --update-baseline # accept what is already there
+house_rules                   # from now on, only new findings fail
 ```
 
 `init` enables the rules that need no project knowledge, and leaves the ones
@@ -55,18 +65,37 @@ tokens, where your token definitions live — commented out with a note. A rule
 configured with a guess is worse than no rule: it either fires on everything
 or silently never fires.
 
+## Speed
+
+Rules see the AST and the raw source, never resolved types. That is a real
+limitation — the checker cannot know that `Foo` is a class — but it is what
+makes a whole-project scan cheap enough to run on every save and every commit
+rather than only in CI.
+
+A 2,937-file Flutter app, ten rules, on a 12-core machine:
+
+| | |
+| --- | --: |
+| `dart run` (no compilation) | 3.30 s |
+| compiled, single isolate | 0.54 s |
+| **compiled, 4 isolates** | **0.285 s** |
+| one file (the editor-hook path) | 0.08 s |
+
+Reading and parsing dominates, and it parallelises cleanly. Past four workers
+isolate spawn costs more than it saves, so that is the cap.
+
 ## Usage
 
 ```sh
-arch_guard                             # check everything in `include:`
-arch_guard lib/foo.dart lib/bar.dart   # check specific files
-arch_guard --format md --output ARCH_GUARD.md
-arch_guard --format html --output report.html
-arch_guard --format json | jq '.new[]'
-arch_guard --format gitlab --output gl-code-quality.json
-arch_guard --check-docs                # guidelines vs. config drift
-arch_guard --no-baseline               # report everything, ignore the baseline
-arch_guard --hook path/to/edited.dart  # quiet when clean, exit 2 when not
+house_rules                             # check everything in `include:`
+house_rules lib/foo.dart lib/bar.dart   # check specific files
+house_rules --format md --output HOUSE_RULES.md
+house_rules --format html --output report.html
+house_rules --format json | jq '.new[]'
+house_rules --format gitlab --output gl-code-quality.json
+house_rules --check-docs                # guidelines vs. config drift
+house_rules --no-baseline               # report everything
+house_rules --hook path/to/edited.dart  # quiet when clean, exit 2 when not
 ```
 
 Exit codes: `0` clean, `1` new findings, `2` new findings in `--hook` mode.
@@ -76,7 +105,7 @@ the reason someone cannot commit.
 ## Configuration
 
 Rules are generic and parameterised. Everything project-specific lives in
-`arch_guard.yaml`, which is why the same ruleset works across codebases.
+`house_rules.yaml`, which is why the same ruleset works across codebases.
 
 ```yaml
 version: 1
@@ -89,7 +118,7 @@ exclude:
 
 rules:
   avoid_palette_colors:
-    severity: error        # error | warning | info
+    severity: error          # error | warning | info
     exclude: [lib/theme/**]  # paths this rule skips
     baseline: false          # findings may never be baselined
     palette: Colors
@@ -98,6 +127,15 @@ rules:
 
 Only `error` and `warning` gate a build; `info` is reported and never blocks.
 Every rule accepts `exclude` and `baseline`.
+
+## What this is not
+
+It is not a dependency-graph tool. If you want circular-dependency detection,
+fan-in/fan-out metrics, workspace graphs or Mermaid diagrams, use
+[`arch_guard`](https://pub.dev/packages/arch_guard) — it reads the import
+graph and does that job well. `house_rules` builds an AST and looks *inside*
+your files, which is the part a graph tool cannot reach. The two compose
+fine; `layer_boundaries` here is a convenience, not a replacement.
 
 ## Rules
 
@@ -237,7 +275,7 @@ legacy debt. Those stay red until they are fixed and can never be hidden.
 ## Suppression
 
 ```dart
-// arch_guard: ignore known_design_tokens — token injected by the vendor SDK
+// house_rules: ignore known_design_tokens — token injected by the vendor SDK
 ```
 
 The reason is mandatory; an unjustified ignore is itself an error, which
@@ -266,27 +304,27 @@ network.
 silent when clean and exits 2 with the findings on stderr when not.
 
 ```sh
-arch_guard --hook "$CHANGED_FILE"
+house_rules --hook "$CHANGED_FILE"
 ```
 
 **Pre-commit.**
 
 ```sh
 FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.dart$')
-[ -n "$FILES" ] && arch_guard $FILES
+[ -n "$FILES" ] && house_rules $FILES
 ```
 
 **CI.**
 
 ```yaml
 script:
-  - arch_guard --check-docs
-  - arch_guard --format gitlab --output gl-code-quality.json
-  - arch_guard --format md --output ARCH_GUARD.md
-  - arch_guard
+  - house_rules --check-docs
+  - house_rules --format gitlab --output gl-code-quality.json
+  - house_rules --format md --output HOUSE_RULES.md
+  - house_rules
 artifacts:
   when: always
-  paths: [ARCH_GUARD.md]
+  paths: [HOUSE_RULES.md]
   reports:
     codequality: gl-code-quality.json
 ```
@@ -302,7 +340,7 @@ Never use a raw hex value or `Colors.*`; always go through `ColorTokens`.
 ⚡ enforced: avoid_palette_colors, avoid_raw_colors
 ```
 
-`arch_guard --check-docs` then fails if a marker names a rule that does not
+`house_rules --check-docs` then fails if a marker names a rule that does not
 exist, or if a blocking rule is undocumented. The config is the source of
 truth; the prose documents it, and the two cannot drift apart silently.
 
@@ -313,7 +351,7 @@ truth; the prose documents it, and the two cannot drift apart silently.
 3. Document its options in this README.
 
 Rules must stay generic: no project-specific identifiers in rule source.
-Anything project-specific belongs in `arch_guard.yaml`.
+Anything project-specific belongs in `house_rules.yaml`.
 
 ### One trap worth knowing
 

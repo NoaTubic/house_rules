@@ -1,23 +1,28 @@
 import 'dart:io';
 
-import 'package:arch_guard/src/finding.dart';
 import 'package:glob/glob.dart';
+import 'package:house_rules/src/finding.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
-/// Parsed `arch_guard.yaml`.
+/// Parsed `house_rules.yaml`.
 ///
 /// Everything project-specific lives here rather than in the rule code, so the
 /// engine stays generic and publishable.
-class ArchConfig {
-  ArchConfig({
+class RulesConfig {
+  RulesConfig({
     required this.root,
+    required this.fileName,
     required this.include,
     required this.exclude,
     required this.rules,
   });
 
-  /// Absolute path of the directory holding `arch_guard.yaml`.
+  /// Name of the config file inside [root], so a parallel scan can tell its
+  /// workers where to reload it from.
+  final String fileName;
+
+  /// Absolute path of the directory holding `house_rules.yaml`.
   final String root;
   final List<String> include;
   final List<String> exclude;
@@ -30,19 +35,19 @@ class ArchConfig {
     '**/*.config.dart',
   ];
 
-  static ArchConfig load(String configPath) {
+  static RulesConfig load(String configPath) {
     final file = File(configPath);
     if (!file.existsSync()) {
-      throw ArchConfigException('config not found: $configPath');
+      throw ConfigException('config not found: $configPath');
     }
     final doc = loadYaml(file.readAsStringSync());
     if (doc is! YamlMap) {
-      throw ArchConfigException('$configPath: expected a YAML map at the root');
+      throw ConfigException('$configPath: expected a YAML map at the root');
     }
 
     final rawRules = doc['rules'];
     if (rawRules is! YamlMap || rawRules.isEmpty) {
-      throw ArchConfigException('$configPath: `rules:` is missing or empty');
+      throw ConfigException('$configPath: `rules:` is missing or empty');
     }
 
     final rules = <String, RuleConfig>{};
@@ -50,7 +55,7 @@ class ArchConfig {
       final name = entry.key.toString();
       final body = entry.value;
       if (body is! YamlMap) {
-        throw ArchConfigException('$configPath: rule `$name` must be a map');
+        throw ConfigException('$configPath: rule `$name` must be a map');
       }
       final options = <String, Object?>{
         for (final o in body.entries) o.key.toString(): _plain(o.value),
@@ -63,8 +68,9 @@ class ArchConfig {
       );
     }
 
-    return ArchConfig(
+    return RulesConfig(
       root: p.dirname(p.absolute(configPath)),
+      fileName: p.basename(configPath),
       include: _stringList(doc['include']) ?? const ['lib/**'],
       exclude: [..._defaultExclude, ...?_stringList(doc['exclude'])],
       rules: rules,
@@ -74,7 +80,7 @@ class ArchConfig {
   static List<String>? _stringList(Object? node) {
     if (node == null) return null;
     if (node is! YamlList) {
-      throw ArchConfigException('expected a list, got ${node.runtimeType}');
+      throw ConfigException('expected a list, got ${node.runtimeType}');
     }
     return node.map((e) => e.toString()).toList();
   }
@@ -131,7 +137,7 @@ class RuleConfig {
   String requireString(String key) {
     final value = options[key];
     if (value is! String || value.isEmpty) {
-      throw ArchConfigException('rule `$name`: `$key:` is required');
+      throw ConfigException('rule `$name`: `$key:` is required');
     }
     return value;
   }
@@ -142,8 +148,8 @@ class RuleConfig {
   }
 }
 
-class ArchConfigException implements Exception {
-  ArchConfigException(this.message);
+class ConfigException implements Exception {
+  ConfigException(this.message);
   final String message;
   @override
   String toString() => message;

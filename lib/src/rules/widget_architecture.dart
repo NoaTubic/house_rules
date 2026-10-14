@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/rules/rule.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/rules/rule.dart';
 
 /// Flags helper functions that return a widget instead of being one.
 ///
@@ -19,7 +19,7 @@ import 'package:arch_guard/src/rules/rule.dart';
 ///   allow_names: [build]
 ///   allow_paths: ['lib/core/presentation/extensions/**']
 /// ```
-class NoWidgetReturningFunctionRule extends ArchRule {
+class NoWidgetReturningFunctionRule extends Rule {
   NoWidgetReturningFunctionRule(super.config) {
     returnTypes = _set(config.options['return_types'], const {'Widget'});
     collectionTypes = _set(
@@ -129,7 +129,7 @@ class _WidgetFnVisitor extends RecursiveAstVisitor<void> {
 ///   severity: error
 ///   build_names: [build]
 /// ```
-class NoMethodInBuildRule extends ArchRule {
+class NoMethodInBuildRule extends Rule {
   NoMethodInBuildRule(super.config) {
     final raw = config.options['build_names'];
     buildNames =

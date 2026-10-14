@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:arch_guard/src/finding.dart';
-import 'package:arch_guard/src/rules/rule.dart';
+import 'package:house_rules/src/finding.dart';
+import 'package:house_rules/src/rules/rule.dart';
 
 /// Flags a reactive `watch` subscription made from inside a callback.
 ///
@@ -21,7 +21,7 @@ import 'package:arch_guard/src/rules/rule.dart';
 ///   listen_member: listen
 ///   handlers: [onTap, onPressed, onChanged]
 /// ```
-class NoWatchInCallbackRule extends ArchRule {
+class NoWatchInCallbackRule extends Rule {
   NoWatchInCallbackRule(super.config) {
     receiver = (config.options['receiver'] ?? 'ref').toString();
     watchMember = (config.options['watch_member'] ?? 'watch').toString();
