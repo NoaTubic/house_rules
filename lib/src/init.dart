@@ -27,10 +27,14 @@ int initConfig(String directory, {bool force = false}) {
     ..writeln()
     ..writeln('Next:')
     ..writeln('  1. house_rules                    see what it finds')
-    ..writeln('  2. house_rules --update-baseline  accept what is already '
-        'there')
-    ..writeln('  3. house_rules                    now only new findings '
-        'fail');
+    ..writeln(
+      '  2. house_rules --update-baseline  accept what is already '
+      'there',
+    )
+    ..writeln(
+      '  3. house_rules                    now only new findings '
+      'fail',
+    );
   if (packageName == null) {
     stdout
       ..writeln()

@@ -20,8 +20,9 @@ void main() {
     final files = <String, String>{};
     for (var i = 0; i < fileCount; i++) {
       // Every third file carries a violation, so findings land in every shard.
-      files['lib/f$i.dart'] =
-          i % 3 == 0 ? 'final a = Colors.black;' : 'final a = 1;';
+      files['lib/f$i.dart'] = i % 3 == 0
+          ? 'final a = Colors.black;'
+          : 'final a = 1;';
     }
     fixture = Fixture.create(
       files,

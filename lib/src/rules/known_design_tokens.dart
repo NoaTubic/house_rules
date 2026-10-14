@@ -87,7 +87,7 @@ class KnownDesignTokensRule extends Rule {
           why: fallbackNote == null
               ? 'Undefined tokens are not caught at compile time.'
               : 'Undefined tokens are not caught at compile time; '
-                  'this one $fallbackNote.',
+                    'this one $fallbackNote.',
           candidates: _nearest(site.token, context: site.context),
         ),
       );
@@ -109,8 +109,8 @@ class KnownDesignTokensRule extends Rule {
   void finish(List<Finding> out) {
     if (!reportUnused) return;
     // Reported as project-level info, not attributed to any one call site.
-    for (final token in defined.difference(used.keys.toSet()).toList()
-      ..sort()) {
+    for (final token
+        in defined.difference(used.keys.toSet()).toList()..sort()) {
       out.add(
         Finding(
           file: sourcePath,
@@ -232,20 +232,18 @@ class _AccessorVisitor extends RecursiveAstVisitor<void> {
     // Non-literal arguments cannot be checked statically; skipping them is
     // correct rather than a gap, and they are a tiny minority in practice.
     if (first is! SimpleStringLiteral) return;
-    sites.add(
-      (
-        token: first.value,
-        offset: first.offset,
-        context: _enclosingArgumentName(node),
-      ),
-    );
+    sites.add((
+      token: first.value,
+      offset: first.offset,
+      context: _enclosingArgumentName(node),
+    ));
   }
 
   /// The named argument this call is assigned to, e.g. `color` in
   /// `color: Tokens.get('...')`. Used to rank suggestions.
   String? _enclosingArgumentName(AstNode node) {
     for (var current = node.parent; current != null; current = current.parent) {
-      if (current is NamedExpression) return current.name.label.name;
+      if (current is NamedArgument) return current.name.lexeme;
       if (current is ArgumentList) break;
     }
     return null;

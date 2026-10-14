@@ -89,9 +89,7 @@ class RulesConfig {
   /// never have to know about the `yaml` package.
   static Object? _plain(Object? node) {
     if (node is YamlMap) {
-      return {
-        for (final e in node.entries) e.key.toString(): _plain(e.value),
-      };
+      return {for (final e in node.entries) e.key.toString(): _plain(e.value)};
     }
     if (node is YamlList) return node.map(_plain).toList();
     return node;

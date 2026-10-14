@@ -37,9 +37,7 @@ class LayerBoundariesRule extends Rule {
           'rule `${config.name}`: each layer must be a map',
         );
       }
-      _layers.add(
-        _Layer.fromMap(entry.cast<String, Object?>(), config.name),
-      );
+      _layers.add(_Layer.fromMap(entry.cast<String, Object?>(), config.name));
     }
   }
 

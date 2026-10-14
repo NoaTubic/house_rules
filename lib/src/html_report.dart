@@ -34,23 +34,24 @@ String renderHtml(
 }
 
 Map<String, Object?> _encode(Finding f, {required bool isNew}) => {
-      'file': f.file,
-      'line': f.line,
-      'column': f.column,
-      'rule': f.rule,
-      'severity': f.severity.name,
-      'message': f.message,
-      'found': f.found,
-      'why': f.why,
-      'candidates': f.candidates,
-      'isNew': isNew,
-    };
+  'file': f.file,
+  'line': f.line,
+  'column': f.column,
+  'rule': f.rule,
+  'severity': f.severity.name,
+  'message': f.message,
+  'found': f.found,
+  'why': f.why,
+  'candidates': f.candidates,
+  'isNew': isNew,
+};
 
 /// A complete document, not a fragment: this file is opened straight from
 /// the filesystem, so it carries its own doctype, charset and viewport.
 /// Without the charset the browser guesses, and non-ASCII punctuation in the
 /// report renders as mojibake.
-const _docOpen = '<!doctype html>\n<html lang="en">\n<head>\n'
+const _docOpen =
+    '<!doctype html>\n<html lang="en">\n<head>\n'
     '<meta charset="utf-8">\n'
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n';
 

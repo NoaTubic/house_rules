@@ -9,11 +9,7 @@ final _ignorePattern = RegExp(
 );
 
 class Suppression {
-  Suppression({
-    required this.line,
-    required this.rules,
-    required this.reason,
-  });
+  Suppression({required this.line, required this.rules, required this.reason});
 
   final int line;
   final List<String> rules;
@@ -55,11 +51,11 @@ class SuppressionIndex {
   /// `// ignore:`, so there is nothing new to learn and no silent over-reach
   /// onto unrelated statements further down.
   bool covers(Finding finding) => all.any(
-        (s) =>
-            s.rules.contains(finding.rule) &&
-            s.isJustified &&
-            (finding.line == s.line || finding.line == s.line + 1),
-      );
+    (s) =>
+        s.rules.contains(finding.rule) &&
+        s.isJustified &&
+        (finding.line == s.line || finding.line == s.line + 1),
+  );
 
   Iterable<Suppression> get unjustified => all.where((s) => !s.isJustified);
 }

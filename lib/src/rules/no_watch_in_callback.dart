@@ -28,8 +28,9 @@ class NoWatchInCallbackRule extends Rule {
     readMember = (config.options['read_member'] ?? 'read').toString();
     listenMember = (config.options['listen_member'] ?? 'listen').toString();
     final raw = config.options['handlers'];
-    handlers =
-        raw is List ? raw.map((e) => e.toString()).toSet() : const <String>{};
+    handlers = raw is List
+        ? raw.map((e) => e.toString()).toSet()
+        : const <String>{};
   }
 
   late final String receiver;
@@ -48,10 +49,12 @@ class NoWatchInCallbackRule extends Rule {
           hit.offset,
           rule: name,
           severity: severity,
-          message: '`$receiver.$watchMember` inside ${hit.context} — '
+          message:
+              '`$receiver.$watchMember` inside ${hit.context} — '
               'use `$receiver.$readMember` here',
           found: 'watch_in:${hit.context}:${hit.snippet}',
-          why: '`$watchMember` creates a subscription. Creating one from a '
+          why:
+              '`$watchMember` creates a subscription. Creating one from a '
               'callback re-registers the listener each time it runs, which '
               'can fire it again immediately.',
           candidates: ['$receiver.$readMember(...)'],
@@ -78,13 +81,7 @@ class _Visitor extends RecursiveAstVisitor<void> {
 
     final context = _callbackContext(node);
     if (context == null) return;
-    hits.add(
-      (
-        offset: node.offset,
-        context: context,
-        snippet: node.toString(),
-      ),
-    );
+    hits.add((offset: node.offset, context: context, snippet: node.toString()));
   }
 
   /// Walks outward looking for a callback this call sits inside. Returns a
@@ -100,8 +97,8 @@ class _Visitor extends RecursiveAstVisitor<void> {
       if (current is! FunctionExpression) continue;
 
       final parent = current.parent;
-      if (parent is NamedExpression) {
-        final label = parent.name.label.name;
+      if (parent is NamedArgument) {
+        final label = parent.name.lexeme;
         if (rule.handlers.contains(label)) return 'the `$label` handler';
         continue;
       }

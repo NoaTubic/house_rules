@@ -34,9 +34,8 @@ class Fixture {
 
   /// Findings sorted into a stable, assertable shape.
   Future<List<String>> ruleAndLine({List<String>? only}) async => [
-        for (final f in (await scan(only: only)).findings)
-          '${f.rule}@${f.line}',
-      ];
+    for (final f in (await scan(only: only)).findings) '${f.rule}@${f.line}',
+  ];
 
   void dispose() {
     if (root.existsSync()) root.deleteSync(recursive: true);

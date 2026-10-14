@@ -22,10 +22,10 @@ import 'package:house_rules/src/rules/rule.dart';
 class NoWidgetReturningFunctionRule extends Rule {
   NoWidgetReturningFunctionRule(super.config) {
     returnTypes = _set(config.options['return_types'], const {'Widget'});
-    collectionTypes = _set(
-      config.options['collection_types'],
-      const {'List', 'Iterable'},
-    );
+    collectionTypes = _set(config.options['collection_types'], const {
+      'List',
+      'Iterable',
+    });
     allowNames = _set(config.options['allow_names'], const {'build'});
     allowPaths = _list(config.options['allow_paths']);
   }
@@ -55,7 +55,8 @@ class NoWidgetReturningFunctionRule extends Rule {
               '`${hit.name}` returns ${hit.type} — extract it into a widget '
               'class',
           found: 'widget_fn:${hit.name}:${hit.type}',
-          why: 'A function returning a widget has no element of its own in '
+          why:
+              'A function returning a widget has no element of its own in '
               'the tree: it cannot be const, cannot be keyed, and always '
               'rebuilds with its parent.',
           candidates: ['class ${_pascal(hit.name)} extends StatelessWidget'],
@@ -83,7 +84,8 @@ class _WidgetFnVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitMethodDeclaration(MethodDeclaration node) {
     super.visitMethodDeclaration(node);
-    if (node.isAbstract) return;
+    // A declaration with no body is an interface contract, not a helper.
+    if (!node.isComplete) return;
     _check(node.offset, node.name.lexeme, node.returnType);
   }
 
@@ -132,8 +134,9 @@ class _WidgetFnVisitor extends RecursiveAstVisitor<void> {
 class NoMethodInBuildRule extends Rule {
   NoMethodInBuildRule(super.config) {
     final raw = config.options['build_names'];
-    buildNames =
-        raw is List ? raw.map((e) => e.toString()).toSet() : const {'build'};
+    buildNames = raw is List
+        ? raw.map((e) => e.toString()).toSet()
+        : const {'build'};
   }
 
   late final Set<String> buildNames;
@@ -142,7 +145,7 @@ class NoMethodInBuildRule extends Rule {
   void visitFile(FileContext file, List<Finding> out) {
     for (final declaration in file.unit.declarations) {
       if (declaration is! ClassDeclaration) continue;
-      for (final member in declaration.members) {
+      for (final member in declaration.body.members) {
         if (member is! MethodDeclaration) continue;
         if (!buildNames.contains(member.name.lexeme)) continue;
         final visitor = _NestedFnVisitor();
@@ -156,8 +159,9 @@ class NoMethodInBuildRule extends Rule {
               message:
                   '`${nested.name}` is declared inside `${member.name.lexeme}'
                   '()` — make it a class member',
-              found: 'fn_in_build:${declaration.name.lexeme}:${nested.name}',
-              why: 'A function declared in a build body is recreated on every '
+              found: 'fn_in_build:${_className(declaration)}:${nested.name}',
+              why:
+                  'A function declared in a build body is recreated on every '
                   'rebuild and captures surrounding locals implicitly.',
             ),
           );
@@ -173,11 +177,17 @@ class _NestedFnVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitFunctionDeclarationStatement(FunctionDeclarationStatement node) {
     super.visitFunctionDeclarationStatement(node);
-    hits.add(
-      (
-        offset: node.offset,
-        name: node.functionDeclaration.name.lexeme,
-      ),
-    );
+    hits.add((offset: node.offset, name: node.functionDeclaration.name.lexeme));
   }
 }
+
+/// The declared name of [declaration].
+///
+/// analyzer 14 replaced `ClassDeclaration.name` with a sealed `namePart`,
+/// which is a primary constructor for some declarations and a plain name for
+/// the rest.
+String _className(ClassDeclaration declaration) =>
+    switch (declaration.namePart) {
+      NameWithTypeParameters(:final typeName) => typeName.lexeme,
+      _ => '<anonymous>',
+    };

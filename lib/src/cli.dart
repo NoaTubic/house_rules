@@ -58,10 +58,7 @@ Future<int> run(List<String> argv) async {
 
 Future<int> _run(List<String> argv) async {
   if (argv.isNotEmpty && argv.first == 'init') {
-    return initConfig(
-      Directory.current.path,
-      force: argv.contains('--force'),
-    );
+    return initConfig(Directory.current.path, force: argv.contains('--force'));
   }
 
   final args = _Args.parse(argv);
@@ -109,8 +106,9 @@ Future<int> _run(List<String> argv) async {
     return 0;
   }
 
-  final baseline =
-      args.noBaseline ? Baseline.empty() : Baseline.load(baselinePath);
+  final baseline = args.noBaseline
+      ? Baseline.empty()
+      : Baseline.load(baselinePath);
   final split = baseline.partition(
     result.findings,
     neverBaselined: neverBaselined,
@@ -128,39 +126,38 @@ Future<int> _run(List<String> argv) async {
 
   final report = switch (args.format) {
     'json' => renderJson(
-        fresh,
-        split.known,
-        filesScanned: result.filesScanned,
-        suppressed: result.suppressed,
-        elapsed: result.elapsed,
-      ),
+      fresh,
+      split.known,
+      filesScanned: result.filesScanned,
+      suppressed: result.suppressed,
+      elapsed: result.elapsed,
+    ),
     'gitlab' => renderGitLab(fresh),
     'md' => renderMarkdown(
-        fresh,
-        split.known,
-        filesScanned: result.filesScanned,
-        suppressed: result.suppressed,
-        elapsed: result.elapsed,
-        projectName: p.basename(config.root),
-        linkPrefix: linkPrefix,
-      ),
+      fresh,
+      split.known,
+      filesScanned: result.filesScanned,
+      suppressed: result.suppressed,
+      elapsed: result.elapsed,
+      projectName: p.basename(config.root),
+      linkPrefix: linkPrefix,
+    ),
     'html' => renderHtml(
-        fresh,
-        split.known,
-        filesScanned: result.filesScanned,
-        suppressed: result.suppressed,
-        elapsed: result.elapsed,
-        projectName: p.basename(config.root),
-      ),
+      fresh,
+      split.known,
+      filesScanned: result.filesScanned,
+      suppressed: result.suppressed,
+      elapsed: result.elapsed,
+      projectName: p.basename(config.root),
+    ),
     _ => renderHuman(
-        fresh,
-        split.known,
-        filesScanned: result.filesScanned,
-        suppressed: result.suppressed,
-        elapsed: result.elapsed,
-        colour:
-            args.colour && args.output == null && stdout.supportsAnsiEscapes,
-      ),
+      fresh,
+      split.known,
+      filesScanned: result.filesScanned,
+      suppressed: result.suppressed,
+      elapsed: result.elapsed,
+      colour: args.colour && args.output == null && stdout.supportsAnsiEscapes,
+    ),
   };
 
   if (args.output != null) {

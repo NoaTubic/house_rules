@@ -88,8 +88,9 @@ class Engine {
       rule.prepare(project);
     }
 
-    final targets =
-        only != null ? only.where(_isIncluded).toList() : _discoverFiles();
+    final targets = only != null
+        ? only.where(_isIncluded).toList()
+        : _discoverFiles();
 
     final shards = await _analyse(targets, rules);
 
@@ -192,8 +193,9 @@ class Engine {
     final chunks = <List<String>>[];
     for (var i = 0; i < targets.length; i += size) {
       final end = i + size;
-      chunks
-          .add(targets.sublist(i, end < targets.length ? end : targets.length));
+      chunks.add(
+        targets.sublist(i, end < targets.length ? end : targets.length),
+      );
     }
 
     // Each isolate reloads the config and builds its own rules: rule objects
@@ -286,7 +288,8 @@ _Shard _analyseChunk(String root, List<String> targets, List<Rule> rules) {
           column: 1,
           rule: 'unjustified_ignore',
           severity: Severity.error,
-          message: 'suppression of ${s.rules.join(', ')} has no reason. '
+          message:
+              'suppression of ${s.rules.join(', ')} has no reason. '
               'Write: // house_rules: ignore <rule> \u2014 why',
           found: 'unjustified:${s.rules.join(',')}',
         ),

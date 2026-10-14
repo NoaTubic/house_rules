@@ -38,31 +38,23 @@ rules:
     forms.forEach((label, source) {
       test(label, () async {
         fixture = Fixture.create({'lib/a.dart': source}, config: config);
-        expect(
-          await fixture.ruleAndLine(),
-          ['avoid_raw_colors@1'],
-          reason: source,
-        );
+        expect(await fixture.ruleAndLine(), [
+          'avoid_raw_colors@1',
+        ], reason: source);
       });
     });
 
     test('leaves an unrelated constructor alone', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = Size(1, 2);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = Size(1, 2);',
+      }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
 
     test('leaves a lowercase function call alone', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = color(0xffAABBCC);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = color(0xffAABBCC);',
+      }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
@@ -91,41 +83,30 @@ rules:
     forms.forEach((label, source) {
       test(label, () async {
         fixture = Fixture.create({'lib/a.dart': source}, config: config);
-        expect(
-          await fixture.ruleAndLine(),
-          ['magic_spacing@1'],
-          reason: source,
-        );
+        expect(await fixture.ruleAndLine(), [
+          'magic_spacing@1',
+        ], reason: source);
       });
     });
 
     test('allowed values are not reported', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = const EdgeInsets.all(0);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = const EdgeInsets.all(0);',
+      }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
 
     test('a named constant is not a magic number', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = EdgeInsets.all(AppSizes.md);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = EdgeInsets.all(AppSizes.md);',
+      }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
 
     test('one finding per construction, not per literal', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = EdgeInsets.fromLTRB(1, 2, 3, 4);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = EdgeInsets.fromLTRB(1, 2, 3, 4);',
+      }, config: config);
       final findings = (await fixture.scan()).findings;
       expect(findings, hasLength(1));
       expect(findings.single.message, contains('1, 2, 3, 4'));
@@ -145,15 +126,12 @@ rules:
 ''';
 
     test('flags hand-rolled typography in either construction form', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': '''
+      fixture = Fixture.create({
+        'lib/a.dart': '''
 final a = const TextStyle(fontSize: 12);
 final b = TextStyle(fontWeight: FontWeight.w700);
 ''',
-        },
-        config: config,
-      );
+      }, config: config);
       expect(await fixture.ruleAndLine(), [
         'avoid_inline_text_styles@1',
         'avoid_inline_text_styles@2',
@@ -161,12 +139,9 @@ final b = TextStyle(fontWeight: FontWeight.w700);
     });
 
     test('allows a style that only sets a colour', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = const TextStyle(color: x);',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = const TextStyle(color: x);',
+      }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
   });
@@ -184,27 +159,21 @@ rules:
 ''';
 
     test('matches the palette prefix exactly', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': '''
+      fixture = Fixture.create({
+        'lib/a.dart': '''
 final a = Colors.black;
 final b = Colors.transparent;
 final c = appColors.black;
 final d = myColors.primary;
 ''',
-        },
-        config: config,
-      );
+      }, config: config);
       expect(await fixture.ruleAndLine(), ['avoid_palette_colors@1']);
     });
 
     test('still matches when a shade is indexed off it', () async {
-      fixture = Fixture.create(
-        {
-          'lib/a.dart': 'final a = Colors.grey[300];',
-        },
-        config: config,
-      );
+      fixture = Fixture.create({
+        'lib/a.dart': 'final a = Colors.grey[300];',
+      }, config: config);
       expect(await fixture.ruleAndLine(), ['avoid_palette_colors@1']);
     });
   });

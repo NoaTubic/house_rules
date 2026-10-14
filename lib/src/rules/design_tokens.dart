@@ -43,7 +43,8 @@ class AvoidPaletteColorsRule extends Rule {
           severity: severity,
           message: '`$palette.${hit.member}` bypasses the design tokens',
           found: 'palette:$palette.${hit.member}',
-          why: 'A literal palette colour will not follow a theme override, a '
+          why:
+              'A literal palette colour will not follow a theme override, a '
               'white-label brand, or dark mode.',
           candidates: suggest == null ? const [] : [suggest!],
         ),
@@ -84,10 +85,11 @@ class _PaletteVisitor extends RecursiveAstVisitor<void> {
 class AvoidRawColorsRule extends Rule {
   AvoidRawColorsRule(super.config) {
     typeName = (config.options['type'] ?? 'Color').toString();
-    constructors = _set(
-      config.options['constructors'],
-      const {'', 'fromARGB', 'fromRGBO'},
-    );
+    constructors = _set(config.options['constructors'], const {
+      '',
+      'fromARGB',
+      'fromRGBO',
+    });
     suggest = config.options['suggest'] as String?;
   }
 
@@ -126,12 +128,10 @@ class _RawColorVisitor extends ConstructionVisitor {
   void onConstruction(Construction c) {
     if (matchConstruction(c, typeName, constructors) == null) return;
     final text = c.node.toString();
-    hits.add(
-      (
-        offset: c.offset,
-        snippet: text.length > 48 ? '${text.substring(0, 45)}...' : text,
-      ),
-    );
+    hits.add((
+      offset: c.offset,
+      snippet: text.length > 48 ? '${text.substring(0, 45)}...' : text,
+    ));
   }
 }
 
@@ -152,10 +152,11 @@ class _RawColorVisitor extends ConstructionVisitor {
 class AvoidInlineTextStylesRule extends Rule {
   AvoidInlineTextStylesRule(super.config) {
     typeName = (config.options['type'] ?? 'TextStyle').toString();
-    flagProperties = _set(
-      config.options['flag_properties'],
-      const {'fontSize', 'fontWeight', 'fontFamily'},
-    );
+    flagProperties = _set(config.options['flag_properties'], const {
+      'fontSize',
+      'fontWeight',
+      'fontFamily',
+    });
     suggest = config.options['suggest'] as String?;
   }
 
@@ -177,7 +178,8 @@ class AvoidInlineTextStylesRule extends Rule {
               '`$typeName` sets ${hit.properties.join(', ')} inline — use the '
               'type scale',
           found: 'inline_style:${hit.properties.join(',')}',
-          why: 'Hand-rolled typography drifts from the type scale and will '
+          why:
+              'Hand-rolled typography drifts from the type scale and will '
               'not follow a theme change.',
           candidates: suggest == null ? const [] : [suggest!],
         ),
@@ -198,9 +200,9 @@ class _InlineStyleVisitor extends ConstructionVisitor {
     if (matchConstructionType(c, typeName) == null) return;
     final flagged = [
       for (final argument in c.arguments.arguments)
-        if (argument is NamedExpression &&
-            flagProperties.contains(argument.name.label.name))
-          argument.name.label.name,
+        if (argument is NamedArgument &&
+            flagProperties.contains(argument.name.lexeme))
+          argument.name.lexeme,
     ];
     if (flagged.isEmpty) return;
     hits.add((offset: c.offset, properties: flagged));
@@ -219,10 +221,11 @@ class _InlineStyleVisitor extends ConstructionVisitor {
 /// ```
 class MagicSpacingRule extends Rule {
   MagicSpacingRule(super.config) {
-    constructors = _set(
-      config.options['constructors'],
-      const {'EdgeInsets', 'SizedBox', 'Gap'},
-    );
+    constructors = _set(config.options['constructors'], const {
+      'EdgeInsets',
+      'SizedBox',
+      'Gap',
+    });
     final raw = config.options['allowed_values'];
     allowedValues = raw is List
         ? raw.map((e) => num.parse(e.toString())).toSet()
@@ -246,7 +249,8 @@ class MagicSpacingRule extends Rule {
           severity: severity,
           message: '`${hit.owner}` hard-codes ${hit.value}',
           found: 'magic_spacing:${hit.owner}:${hit.value}',
-          why: 'Spacing literals drift apart over time; a named constant keeps '
+          why:
+              'Spacing literals drift apart over time; a named constant keeps '
               'the scale consistent.',
           candidates: suggest == null ? const [] : [suggest!],
         ),
@@ -274,8 +278,12 @@ class _SpacingVisitor extends ConstructionVisitor {
     // 1, 2, 3, 4)` is a single decision to fix, not four.
     final values = <String>[];
     for (final argument in c.arguments.arguments) {
-      final expression =
-          argument is NamedExpression ? argument.expression : argument;
+      final expression = switch (argument) {
+        NamedArgument(:final argumentExpression) => argumentExpression,
+        final Expression e => e,
+        _ => null,
+      };
+      if (expression == null) continue;
       final value = _literal(expression);
       if (value == null || allowedValues.contains(value)) continue;
       values.add('$value');
@@ -292,8 +300,8 @@ class _SpacingVisitor extends ConstructionVisitor {
   }
 
   num? _literal(Expression expression) => switch (expression) {
-        IntegerLiteral(:final value) => value,
-        DoubleLiteral(:final value) => value,
-        _ => null,
-      };
+    IntegerLiteral(:final value) => value,
+    DoubleLiteral(:final value) => value,
+    _ => null,
+  };
 }

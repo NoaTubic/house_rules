@@ -10,7 +10,8 @@ First release.
   `no_watch_in_callback`, `no_widget_returning_function`,
   `no_method_in_build`, `avoid_palette_colors`, `avoid_raw_colors`,
   `avoid_inline_text_styles`, `magic_spacing`, `unjustified_ignore`.
-- Parse-only AST analysis, sharded across isolates: 2,937 files in 0.285 s.
+- Parse-only AST analysis, sharded across isolates: 2,937 files in 0.29 s.
+- Requires analyzer 14, so it installs alongside other current tooling.
 - Ratchet baseline keyed by a hash of the offending expression rather than
   line numbers, so it survives formatting and unrelated edits.
 - Per-rule `exclude` globs, and `baseline: false` for zero-tolerance rules.

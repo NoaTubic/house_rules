@@ -70,14 +70,12 @@ abstract class ConstructionVisitor extends RecursiveAstVisitor<void> {
       if (prefix != null && named.isNotEmpty) (type: prefix, constructor: base),
     ];
 
-    onConstruction(
-      (
-        offset: node.offset,
-        forms: forms,
-        arguments: node.argumentList,
-        node: node,
-      ),
-    );
+    onConstruction((
+      offset: node.offset,
+      forms: forms,
+      arguments: node.argumentList,
+      node: node,
+    ));
   }
 
   @override
@@ -90,28 +88,24 @@ abstract class ConstructionVisitor extends RecursiveAstVisitor<void> {
       // Only capitalised names are considered, which is how Dart style
       // distinguishes a type from a function.
       if (!_looksLikeType(node.methodName.name)) return;
-      onConstruction(
-        (
-          offset: node.offset,
-          forms: [(type: node.methodName.name, constructor: '')],
-          arguments: node.argumentList,
-          node: node,
-        ),
-      );
+      onConstruction((
+        offset: node.offset,
+        forms: [(type: node.methodName.name, constructor: '')],
+        arguments: node.argumentList,
+        node: node,
+      ));
       return;
     }
 
     // `EdgeInsets.symmetric(...)` — a named constructor on a bare type.
     if (target is! SimpleIdentifier) return;
     if (!_looksLikeType(target.name)) return;
-    onConstruction(
-      (
-        offset: node.offset,
-        forms: [(type: target.name, constructor: node.methodName.name)],
-        arguments: node.argumentList,
-        node: node,
-      ),
-    );
+    onConstruction((
+      offset: node.offset,
+      forms: [(type: target.name, constructor: node.methodName.name)],
+      arguments: node.argumentList,
+      node: node,
+    ));
   }
 
   static bool _looksLikeType(String name) =>

@@ -8,18 +8,17 @@ Finding sample({
   Severity severity = Severity.error,
   String message = 'uses `Colors.black`',
   List<String> candidates = const ['Text/body'],
-}) =>
-    Finding(
-      file: 'lib/features/cart/widget.dart',
-      line: 12,
-      column: 5,
-      rule: rule,
-      severity: severity,
-      message: message,
-      found: 'Colors.black',
-      why: 'A literal palette colour cannot be themed.',
-      candidates: candidates,
-    );
+}) => Finding(
+  file: 'lib/features/cart/widget.dart',
+  line: 12,
+  column: 5,
+  rule: rule,
+  severity: severity,
+  message: message,
+  found: 'Colors.black',
+  why: 'A literal palette colour cannot be themed.',
+  candidates: candidates,
+);
 
 void main() {
   group('human', () {
@@ -55,15 +54,17 @@ void main() {
 
   group('json', () {
     test('is parseable and carries a fingerprint', () {
-      final decoded = jsonDecode(
-        renderJson(
-          [sample()],
-          const [],
-          filesScanned: 3,
-          suppressed: 1,
-          elapsed: const Duration(milliseconds: 42),
-        ),
-      ) as Map<String, Object?>;
+      final decoded =
+          jsonDecode(
+                renderJson(
+                  [sample()],
+                  const [],
+                  filesScanned: 3,
+                  suppressed: 1,
+                  elapsed: const Duration(milliseconds: 42),
+                ),
+              )
+              as Map<String, Object?>;
 
       expect(decoded['filesScanned'], 3);
       expect(decoded['suppressed'], 1);

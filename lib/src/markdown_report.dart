@@ -35,7 +35,7 @@ String renderMarkdown(
       blocking.isEmpty
           ? '**No blocking findings.**'
           : '**${blocking.length} blocking '
-              '${blocking.length == 1 ? 'finding' : 'findings'}.**',
+                '${blocking.length == 1 ? 'finding' : 'findings'}.**',
     )
     ..writeln()
     ..writeln(
@@ -65,8 +65,10 @@ String renderMarkdown(
       ..writeln('## Informational')
       ..writeln()
       ..writeln('<details>')
-      ..writeln('<summary>${_n(info.length)} findings — not blocking'
-          '</summary>')
+      ..writeln(
+        '<summary>${_n(info.length)} findings — not blocking'
+        '</summary>',
+      )
       ..writeln();
     _writeGroups(out, info, linkPrefix);
     out
@@ -80,8 +82,10 @@ String renderMarkdown(
     out
       ..writeln('## Baselined')
       ..writeln()
-      ..writeln('${_n(known.length)} findings are recorded in the baseline '
-          'and are not listed here. To see them:')
+      ..writeln(
+        '${_n(known.length)} findings are recorded in the baseline '
+        'and are not listed here. To see them:',
+      )
       ..writeln()
       ..writeln('```bash')
       ..writeln('house_rules --no-baseline --format md --output all.md')
@@ -150,9 +154,7 @@ void _writeGroups(StringBuffer out, List<Finding> findings, String prefix) {
       final location = f.line == 0
           ? '`${entry.key.split('/').last}`'
           : '[${f.line}:${f.column}]($prefix${entry.key}#L${f.line})';
-      out.writeln(
-        '- $location **${f.severity.label}** `${f.rule}`  ',
-      );
+      out.writeln('- $location **${f.severity.label}** `${f.rule}`  ');
       out.writeln('  ${_escape(f.message)}  ');
       if (f.why != null) {
         out.writeln('  _${_escape(f.why!)}_  ');

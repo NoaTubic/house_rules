@@ -65,9 +65,10 @@ String renderHuman(
     for (final entry in byRule.entries) {
       buffer.writeln(
         c(
-            _dim,
-            '${entry.value} ${entry.key} (info, not blocking) '
-            '\u2014 see --format json'),
+          _dim,
+          '${entry.value} ${entry.key} (info, not blocking) '
+          '\u2014 see --format json',
+        ),
       );
     }
     buffer.writeln();
@@ -96,17 +97,17 @@ String renderJson(
   required Duration elapsed,
 }) {
   Map<String, Object?> encode(Finding f) => {
-        'file': f.file,
-        'line': f.line,
-        'column': f.column,
-        'rule': f.rule,
-        'severity': f.severity.name,
-        'message': f.message,
-        if (f.found != null) 'found': f.found,
-        if (f.why != null) 'why': f.why,
-        if (f.candidates.isNotEmpty) 'candidates': f.candidates,
-        'fingerprint': f.fingerprint,
-      };
+    'file': f.file,
+    'line': f.line,
+    'column': f.column,
+    'rule': f.rule,
+    'severity': f.severity.name,
+    'message': f.message,
+    if (f.found != null) 'found': f.found,
+    if (f.why != null) 'why': f.why,
+    if (f.candidates.isNotEmpty) 'candidates': f.candidates,
+    'fingerprint': f.fingerprint,
+  };
 
   return const JsonEncoder.withIndent('  ').convert({
     'filesScanned': filesScanned,

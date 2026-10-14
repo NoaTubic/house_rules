@@ -54,8 +54,5 @@ DocCheckResult checkDocs(RulesConfig config, List<String> docPaths) {
         entry.key,
   ]..sort();
 
-  return DocCheckResult(
-    danglingMarkers: dangling,
-    undocumented: undocumented,
-  );
+  return DocCheckResult(danglingMarkers: dangling, undocumented: undocumented);
 }

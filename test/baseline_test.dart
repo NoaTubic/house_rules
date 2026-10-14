@@ -10,16 +10,15 @@ Finding finding(
   String rule, {
   String? found,
   Severity severity = Severity.error,
-}) =>
-    Finding(
-      file: file,
-      line: line,
-      column: 1,
-      rule: rule,
-      severity: severity,
-      message: 'message',
-      found: found ?? 'expr$line',
-    );
+}) => Finding(
+  file: file,
+  line: line,
+  column: 1,
+  rule: rule,
+  severity: severity,
+  message: 'message',
+  found: found ?? 'expr$line',
+);
 
 void main() {
   late Directory dir;
@@ -96,10 +95,9 @@ void main() {
     ];
     Baseline.write(path, findings, neverBaselined: {'zero_tolerance'});
 
-    final split = Baseline.load(path).partition(
-      findings,
-      neverBaselined: {'zero_tolerance'},
-    );
+    final split = Baseline.load(
+      path,
+    ).partition(findings, neverBaselined: {'zero_tolerance'});
     expect(split.known.map((f) => f.rule), ['keep']);
     expect(split.fresh.map((f) => f.rule), ['zero_tolerance']);
   });
@@ -110,10 +108,9 @@ void main() {
       finding('a.dart', 1, 'r', found: 'a'),
       finding('m.dart', 1, 'r', found: 'm'),
     ]);
-    final files = RegExp('"f": "([^"]+)"')
-        .allMatches(File(path).readAsStringSync())
-        .map((m) => m.group(1))
-        .toList();
+    final files = RegExp(
+      '"f": "([^"]+)"',
+    ).allMatches(File(path).readAsStringSync()).map((m) => m.group(1)).toList();
     expect(files, orderedEquals(['a.dart', 'm.dart', 'z.dart']));
   });
 

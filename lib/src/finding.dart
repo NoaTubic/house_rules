@@ -5,11 +5,11 @@ enum Severity {
   info;
 
   static Severity parse(String raw) => switch (raw.toLowerCase()) {
-        'error' => Severity.error,
-        'warning' || 'warn' => Severity.warning,
-        'info' => Severity.info,
-        _ => throw FormatException('unknown severity: $raw'),
-      };
+    'error' => Severity.error,
+    'warning' || 'warn' => Severity.warning,
+    'info' => Severity.info,
+    _ => throw FormatException('unknown severity: $raw'),
+  };
 
   String get label => name.toUpperCase();
 }
