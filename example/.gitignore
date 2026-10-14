@@ -1,0 +1,4 @@
+.dart_tool/
+pubspec.lock
+ARCH_GUARD.md
+report.html

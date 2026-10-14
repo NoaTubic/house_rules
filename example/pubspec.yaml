@@ -1,0 +1,7 @@
+name: example_app
+description: A tiny project where every file breaks exactly one arch_guard rule.
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ^3.6.0

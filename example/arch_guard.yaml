@@ -1,0 +1,41 @@
+# A minimal, runnable configuration.
+#
+#   cd example && dart run ../bin/arch_guard.dart
+#
+# Each file under example/lib breaks one rule on purpose, so the output shows
+# what every rule reports and what its suggestions look like.
+version: 1
+
+include:
+  - lib/**
+
+rules:
+  known_design_tokens:
+    severity: error
+    baseline: false
+    accessor: AppColors.token
+    source: lib/theme/app_colors.dart
+    fallback_note: falls back to magenta at runtime
+    report_unused: true
+
+  layer_boundaries:
+    severity: error
+    package: example_app
+    layers:
+      - paths: ['lib/features/*/domain/**']
+        deny:
+          - lib/features/*/presentation/**
+          # In a Flutter project this would be package:flutter/material.dart.
+          - lib/ui/**
+        message: domain must not depend on presentation or the UI library
+
+  no_widget_returning_function:
+    severity: error
+    return_types: [Widget]
+    allow_names: [build]
+
+  avoid_palette_colors:
+    severity: error
+    exclude: [lib/theme/**]
+    palette: Colors
+    allowed: [transparent, white]
