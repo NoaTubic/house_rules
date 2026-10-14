@@ -98,7 +98,7 @@ rules:
 
     test('a named constant is not a magic number', () async {
       fixture = Fixture.create({
-        'lib/a.dart': 'final a = EdgeInsets.all(AppSizes.md);',
+        'lib/a.dart': 'final a = EdgeInsets.all(Spacing.md);',
       }, config: config);
       expect(await fixture.ruleAndLine(), isEmpty);
     });
@@ -163,7 +163,7 @@ rules:
         'lib/a.dart': '''
 final a = Colors.black;
 final b = Colors.transparent;
-final c = appColors.black;
+final c = palette.black;
 final d = myColors.primary;
 ''',
       }, config: config);

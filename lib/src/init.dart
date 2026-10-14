@@ -174,8 +174,8 @@ rules:
   # known_design_tokens:
   #   severity: error
   #   baseline: false
-  #   accessor: ColorTokens.get
-  #   source: lib/theme/color_tokens.dart
+  #   accessor: DesignTokens.color
+  #   source: lib/theme/design_tokens.dart
   #   fallback_note: renders a fallback colour at runtime
   #   report_unused: true
 ''';

@@ -12,7 +12,7 @@ class DocCheckResult {
   DocCheckResult({required this.danglingMarkers, required this.undocumented});
 
   /// Markers naming a rule that is not in the config.
-  final List<({String rule, int line})> danglingMarkers;
+  final List<({String file, String rule, int line})> danglingMarkers;
 
   /// Error- or warning-severity rules with no marker anywhere.
   final List<String> undocumented;
@@ -24,7 +24,7 @@ final _markerPattern = RegExp(r'⚡\s*enforced:\s*(.+)$');
 
 DocCheckResult checkDocs(RulesConfig config, List<String> docPaths) {
   final declared = <String, int>{};
-  final dangling = <({String rule, int line})>[];
+  final dangling = <({String file, String rule, int line})>[];
 
   for (final relative in docPaths) {
     final file = File(p.join(config.root, relative));
@@ -41,7 +41,7 @@ DocCheckResult checkDocs(RulesConfig config, List<String> docPaths) {
       for (final name in names) {
         declared[name] = i + 1;
         if (!config.rules.containsKey(name)) {
-          dangling.add((rule: name, line: i + 1));
+          dangling.add((file: relative, rule: name, line: i + 1));
         }
       }
     }

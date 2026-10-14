@@ -1,4 +1,4 @@
-import 'package:example_app/theme/app_colors.dart';
+import 'package:example_app/theme/design_tokens.dart';
 import 'package:example_app/ui/ui.dart';
 
 class CartRow extends StatelessWidget {
@@ -18,6 +18,6 @@ class CartRow extends StatelessWidget {
     label,
     // Breaks known_design_tokens: 'Text/bdy' is a typo for 'Text/body'. It
     // compiles, and renders magenta.
-    style: TextStyle(color: AppColors.token('Text/bdy')),
+    style: TextStyle(color: DesignTokens.color('Text/bdy')),
   );
 }

@@ -163,7 +163,8 @@ Future<int> _run(List<String> argv) async {
   if (args.output != null) {
     File(args.output!).writeAsStringSync(report);
   } else if (!(args.hook && fresh.isEmpty)) {
-    // Hook mode writes to stderr so Claude Code surfaces it to the agent.
+    // Hook mode writes to stderr, which is where a calling agent or
+    // editor integration reads a tool's feedback from.
     if (args.hook) {
       stderr.write(report);
     } else {
@@ -183,14 +184,14 @@ int _checkDocs(RulesConfig config) {
   final result = checkDocs(config, docs);
   for (final marker in result.danglingMarkers) {
     stderr.writeln(
-      'CLAUDE.md:${marker.line}: enforced marker names unknown rule '
+      '${marker.file}:${marker.line}: enforced marker names unknown rule '
       '"${marker.rule}"',
     );
   }
   for (final rule in result.undocumented) {
     stderr.writeln(
-      'house_rules.yaml: rule "$rule" blocks builds but is not documented '
-      'with an enforced marker',
+      '${config.fileName}: rule "$rule" blocks builds but is not '
+      'documented with an enforced marker',
     );
   }
   if (result.isClean) {

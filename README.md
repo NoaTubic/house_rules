@@ -145,9 +145,9 @@ Verifies that every token looked up through a string accessor is defined.
 
 This is the rule worth installing the package for. A stringly-typed token
 lookup has no compile-time check, and token accessors almost always have a
-fallback — so a typo does not fail the build, it ships a visibly wrong
-widget. On the codebase this package was written against, it found **21 live
-call sites** rendering hot pink in production.
+fallback — so a typo does not fail the build, it quietly ships a visibly
+wrong widget. Those are exactly the bugs that survive code review, because
+the diff looks correct.
 
 Suggestions are ranked by shared path segments, string distance, and the
 enclosing named argument. Definitions are collected from *every* map literal
@@ -158,8 +158,8 @@ plus theme overrides, say — with no extra configuration.
 known_design_tokens:
   severity: error
   baseline: false
-  accessor: ColorTokens.get            # <Type>.<method>('<token>')
-  source: lib/theme/color_tokens.dart
+  accessor: DesignTokens.color            # <Type>.<method>('<token>')
+  source: lib/theme/design_tokens.dart
   fallback_note: renders Colors.pink at runtime
   report_unused: true                  # also report defined-but-unused
 ```
@@ -230,7 +230,7 @@ frame, and capturing surrounding locals implicitly.
 ### `avoid_palette_colors`
 
 Flags a framework palette colour (`Colors.grey`) where a design token
-belongs. The prefix is matched exactly, so a variable named `appColors` is
+belongs. The prefix is matched exactly, so a variable named `palette` is
 never mistaken for the framework palette.
 
 ### `avoid_raw_colors`
@@ -335,7 +335,7 @@ If your project documents its rules in prose — a `CLAUDE.md`, an
 `AGENTS.md`, a contributing guide — mark the mechanised ones:
 
 ```markdown
-Never use a raw hex value or `Colors.*`; always go through `ColorTokens`.
+Never use a raw hex value or `Colors.*`; always go through `DesignTokens`.
 
 ⚡ enforced: avoid_palette_colors, avoid_raw_colors
 ```

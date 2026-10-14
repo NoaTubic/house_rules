@@ -18,7 +18,7 @@ Set<String> _set(Object? raw, Set<String> fallback) =>
 ///   severity: error
 ///   palette: Colors
 ///   allowed: [transparent, white]
-///   suggest: ColorTokens.get('<token>')
+///   suggest: DesignTokens.color('<token>')
 /// ```
 class AvoidPaletteColorsRule extends Rule {
   AvoidPaletteColorsRule(super.config) {
@@ -63,8 +63,8 @@ class _PaletteVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitPrefixedIdentifier(PrefixedIdentifier node) {
     super.visitPrefixedIdentifier(node);
-    // Exact match on the prefix, so `appColors.primary` is not mistaken for
-    // the framework palette.
+    // Exact match on the prefix, so a `palette.primary` field is not
+    // mistaken for the framework palette.
     if (node.prefix.name != palette) return;
     final member = node.identifier.name;
     if (allowed.contains(member)) return;
@@ -80,7 +80,7 @@ class _PaletteVisitor extends RecursiveAstVisitor<void> {
 ///   severity: error
 ///   type: Color
 ///   constructors: ['', fromARGB, fromRGBO]
-///   suggest: ColorTokens.get('<token>')
+///   suggest: DesignTokens.color('<token>')
 /// ```
 class AvoidRawColorsRule extends Rule {
   AvoidRawColorsRule(super.config) {
@@ -147,7 +147,7 @@ class _RawColorVisitor extends ConstructionVisitor {
 ///   severity: warning
 ///   type: TextStyle
 ///   flag_properties: [fontSize, fontWeight, fontFamily]
-///   suggest: context.appTextStyles.<style>
+///   suggest: context.textScale.<style>
 /// ```
 class AvoidInlineTextStylesRule extends Rule {
   AvoidInlineTextStylesRule(super.config) {
@@ -217,7 +217,7 @@ class _InlineStyleVisitor extends ConstructionVisitor {
 ///   severity: warning
 ///   constructors: [EdgeInsets, SizedBox, Gap]
 ///   allowed_values: [0, 1]
-///   suggest: AppSizes.<name>
+///   suggest: Spacing.<name>
 /// ```
 class MagicSpacingRule extends Rule {
   MagicSpacingRule(super.config) {

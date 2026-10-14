@@ -13,8 +13,8 @@ rules:
   known_design_tokens:
     severity: error
     baseline: false
-    accessor: AppColors.token
-    source: lib/theme/app_colors.dart
+    accessor: DesignTokens.color
+    source: lib/theme/design_tokens.dart
     fallback_note: falls back to magenta at runtime
     report_unused: true
 

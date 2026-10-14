@@ -18,8 +18,8 @@ import 'package:house_rules/src/rules/rule.dart';
 /// ```yaml
 /// known_design_tokens:
 ///   severity: error
-///   accessor: ColorTokens.get     # <Target>.<method>('<token>')
-///   source: lib/theme/color_tokens.dart
+///   accessor: DesignTokens.color     # <Target>.<method>('<token>')
+///   source: lib/theme/design_tokens.dart
 ///   fallback_note: "renders Colors.pink at runtime"
 ///   report_unused: true
 /// ```
