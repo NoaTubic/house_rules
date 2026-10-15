@@ -1,5 +1,7 @@
 # house_rules
 
+> Read the article: [Write your Flutter lint rules in YAML](https://medium.com/@noatubic/write-your-flutter-lint-rules-in-yaml-174c75897011)
+
 **Write your project's lint rules in YAML.**
 
 Every codebase has house rules. *Use the design tokens, not `Colors.grey`.
